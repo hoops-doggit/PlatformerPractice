@@ -1,0 +1,9 @@
+Temp/
+bin/
+Library/
+*.dll
+*.mdb
+Library/
+.suo
+.vs/pxljam/v14/.suo
+obj/
