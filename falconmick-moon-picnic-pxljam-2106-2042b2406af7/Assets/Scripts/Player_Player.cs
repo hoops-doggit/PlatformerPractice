@@ -7,14 +7,16 @@ public class Player_Player : MonoBehaviour {
 
     public float jumpHeight = 4;
     public float timeToJumpApex = .4f;
+    public float moveSpeed = 6;
+    public float accelerationTimeAirborne = .2f;
+    public float accelerationTimeGrounded = .1f;
 
 
-    float moveSpeed = 6;
-    float gravity = -20;
-    float jumpVelocity = 8; 
+
+    public float gravity = -20;
+    public float jumpVelocity = 8; 
     Vector3 velocity;
-
-    
+    float velocityXSmoothing;
 
 
     Player_Controller2D controller;
@@ -27,8 +29,19 @@ public class Player_Player : MonoBehaviour {
         jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
 	}
 	
+    public void UpdateJump()
+    {
+        gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
+        jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+    }
+
 	// Update is called once per frame
 	void Update () {
+
+        if (Input.GetKeyDown(KeyCode.Q))
+        {
+            UpdateJump();
+        }
 
         if (controller.collisions.above || controller.collisions.below)
         {
@@ -42,7 +55,8 @@ public class Player_Player : MonoBehaviour {
             velocity.y = jumpVelocity;
         }
 
-        velocity.x = input.x * moveSpeed;
+        float targetVelocityX = input.x * moveSpeed;
+        velocity.x = Mathf.SmoothDamp(velocity.x, targetVelocityX, ref velocityXSmoothing, (controller.collisions.below)?accelerationTimeGrounded:accelerationTimeAirborne);
         velocity.y += gravity * Time.deltaTime;
         controller.Move(velocity * Time.deltaTime);
 		
