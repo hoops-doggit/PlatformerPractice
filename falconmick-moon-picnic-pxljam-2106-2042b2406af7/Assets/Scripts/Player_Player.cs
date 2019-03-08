@@ -5,7 +5,8 @@ using UnityEngine;
 [RequireComponent(typeof(Player_Controller2D)) ]
 public class Player_Player : MonoBehaviour {
 
-    public float jumpHeight = 4;
+    public float minJumpHeight;
+    public float maxJumpHeight = 4;
     public float timeToJumpApex = .4f;
     public float moveSpeed = 6;
 
@@ -21,8 +22,9 @@ public class Player_Player : MonoBehaviour {
     public float accelerationTimeGrounded = .1f;
 
 
-    public float gravity = -20;
-    public float jumpVelocity = 8; 
+    float gravity;
+    public float minJumpVelocity;
+    public float maxJumpVelocity; 
     Vector3 velocity;
     float velocityXSmoothing;
 
@@ -35,14 +37,15 @@ public class Player_Player : MonoBehaviour {
 	void Start () {
         controller = GetComponent<Player_Controller2D>();
 
-        gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
-        jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
-	}
+        gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
+        maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+        minJumpVelocity = Mathf.Sqrt(2*Mathf.Abs(gravity)*minJumpHeight);
+    }
 	
     public void UpdateJump()
     {
-        gravity = -(2 * jumpHeight) / Mathf.Pow(timeToJumpApex, 2);
-        jumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
+        gravity = -(2 * maxJumpHeight) / Mathf.Pow(timeToJumpApex, 2);
+        maxJumpVelocity = Mathf.Abs(gravity) * timeToJumpApex;
     }
 
 	// Update is called once per frame
@@ -89,13 +92,10 @@ public class Player_Player : MonoBehaviour {
             UpdateJump();
         }
 
-        if (controller.collisions.above || controller.collisions.below)
-        {
-            velocity.y = 0;
-        }
-
         
 
+        
+        // Jump
         if (Input.GetKeyDown (KeyCode.Space))
         {
             if (wallSliding)
@@ -121,14 +121,27 @@ public class Player_Player : MonoBehaviour {
 
             if (controller.collisions.below)
             {
-                velocity.y = jumpVelocity;
+                velocity.y = maxJumpVelocity;
+            }            
+        }
+
+        // Jump Variable Jump Height
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            if (velocity.y > minJumpVelocity)
+            {
+                velocity.y = minJumpVelocity;
             }
-            
         }
 
         
         velocity.y += gravity * Time.deltaTime;
-        controller.Move(velocity * Time.deltaTime);
-		
-	}
+        
+        controller.Move(velocity * Time.deltaTime,input);
+        if (controller.collisions.above || controller.collisions.below)
+        {
+            velocity.y = 0;
+        }
+
+    }
 }
