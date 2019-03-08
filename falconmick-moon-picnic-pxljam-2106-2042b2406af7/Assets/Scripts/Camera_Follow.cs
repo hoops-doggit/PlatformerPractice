@@ -35,6 +35,7 @@ public class Camera_Follow : MonoBehaviour {
         if (focusArea.velocity.x != 0)
         {
             lookAheadDirX = Mathf.Sign(focusArea.velocity.x);
+
             if (Mathf.Sign(target.playerInput.x) == Mathf.Sign(focusArea.velocity.x) )//&& target.playerInput.x != 0) Commented out 
             {
                 //lookAheadStopped = false;
@@ -49,7 +50,7 @@ public class Camera_Follow : MonoBehaviour {
                 }
             }
         }
-
+        targetLookAheadX = lookAheadDirX * lookAheadDstX;
         currentLookAheadX = Mathf.SmoothDamp(currentLookAheadX, targetLookAheadX, ref smoothLookVelocityX, lookSmoothTimeX);
 
         focusPosition.y = Mathf.SmoothDamp(transform.position.y, focusPosition.y, ref smoothVelocityY, verticalSmoothTime);
